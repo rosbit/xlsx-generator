@@ -6,19 +6,19 @@ import (
 	"fmt"
 )
 
-// --- DummyGeneratorAdapter -----
-type DummyGeneratorAdapter struct {}
-func (a *DummyGeneratorAdapter) BeforeOutputXlsx() {}
-func (a *DummyGeneratorAdapter) GetWriter() io.Writer { return nil; }
-func (a *DummyGeneratorAdapter) GetSheet() string { return "Sheet1"; }
-func (a *DummyGeneratorAdapter) GetTitles() []Title { return nil; }
-func (a *DummyGeneratorAdapter) GetRows() (<-chan interface{}) { return nil; }
-func (a *DummyGeneratorAdapter) BeforeOutputRow(row interface{}) {}
-func (a *DummyGeneratorAdapter) GetColValue(row interface{}, idx, subIdx int, title Title) interface{} { return nil; }
+// --- DummyXlsxGeneratorAdapter -----
+type DummyXlsxGeneratorAdapter struct {}
+func (a *DummyXlsxGeneratorAdapter) BeforeOutputXlsx() {}
+func (a *DummyXlsxGeneratorAdapter) GetWriter() io.Writer { return nil; }
+func (a *DummyXlsxGeneratorAdapter) GetSheet() string { return "Sheet1"; }
+func (a *DummyXlsxGeneratorAdapter) GetTitles() []Title { return nil; }
+func (a *DummyXlsxGeneratorAdapter) GetRows() (<-chan interface{}) { return nil; }
+func (a *DummyXlsxGeneratorAdapter) BeforeOutputRow(row interface{}) {}
+func (a *DummyXlsxGeneratorAdapter) GetColValue(row interface{}, idx, subIdx int, title Title) interface{} { return nil; }
 
 // --- XlsxGeneratorAdapter -----
 type XlsxGeneratorAdapter struct {
-	DummyGeneratorAdapter
+	DummyXlsxGeneratorAdapter
 }
 
 func (a *XlsxGeneratorAdapter) GetWriter() io.Writer {

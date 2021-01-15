@@ -22,7 +22,7 @@ func TestXlsx(t *testing.T) {
 }
 
 type xlsxTest struct {
-	XlsxGeneratorAdapter
+	DummyXlsxGeneratorAdapter
 	fp *os.File
 }
 
