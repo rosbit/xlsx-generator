@@ -42,21 +42,25 @@ func GenerateXlsx(xg XlsxGenerator) {
 		return
 	}
 
+	titles := xg.GetTitles()
+	if len(titles) == 0 {
+		return
+	}
+
+	fXls := excelize.NewFile()
+	defer fXls.Write(writer)
+	sheet := xg.GetSheet()
+	rowNo := outputTitleRow(fXls, sheet, titles)
+
 	rows := xg.GetRows()
 	if rows == nil {
 		return
 	}
 
-	fXls := excelize.NewFile()
-	sheet := xg.GetSheet()
-	titles := xg.GetTitles()
-	rowNo := outputTitleRow(fXls, sheet, titles)
 	for row := range rows {
 		outputRow(xg, fXls, sheet, titles, rowNo, row)
 		rowNo += 1
 	}
-
-	fXls.Write(writer)
 }
 
 func outputTitleRow(fXls *excelize.File, sheet string, titles []Title) int {
