@@ -86,12 +86,12 @@ func outputTitleRow(fXls *excelize.File, sheet string, titles []Title) int {
 	lastCol := g.Last()
 
 	style, _ := fXls.NewStyle(`{"alignment":{"horizontal":"center"}}`)
-    if shouldMergeSubtitle {
-        fXls.SetCellStyle(sheet, "A1", fmt.Sprintf("%s2", lastCol), style)
-        return 3
-    }
-    fXls.SetCellStyle(sheet, "A1", fmt.Sprintf("%s1", lastCol), style)
-    return 2
+	if shouldMergeSubtitle {
+		fXls.SetCellStyle(sheet, "A1", fmt.Sprintf("%s2", lastCol), style)
+		return 3
+	}
+	fXls.SetCellStyle(sheet, "A1", fmt.Sprintf("%s1", lastCol), style)
+	return 2
 }
 
 func outputTitleCell(g *columnGenerator, fXls *excelize.File, sheet, title string, shouldMergeSubtitle bool) {
