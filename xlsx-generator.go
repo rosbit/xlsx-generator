@@ -41,23 +41,51 @@ type XlsxGenerator interface {
 	GetWriter() io.Writer
 
 	/// 获取Book的sheet名称
-	GetSheet() string
+	GetSheets() []string
 
-	/// 获取的标题及子标题
-	GetTitles() []Title
+	/// 获取某一个sheet的标题及子标题
+	GetTitles(sheet string) []Title
 
-	// 获取所有的输出行channel
-	GetRows() (<-chan map[string]interface{}) // 如果没有subtitle，key={title}; 其它key为{title}_{subtitle}
+	// 获取某个sheet所有的输出行channel
+	GetRows(sheet string) (<-chan map[string]interface{}) // 如果没有subtitle，key={title}; 其它key为{title}_{subtitle}
 }
+
+const (
+	default_sheet = "Sheet1"
+)
 
 func GenerateXlsx(xg XlsxGenerator) {
 	xg.BeforeOutputXlsx()
 
+	writer := xg.GetWriter()
+	if writer == nil {
+		return
+	}
+	fXls := excelize.NewFile()
+	defer fXls.Write(writer)
+
+	sheets := xg.GetSheets()
+	if len(sheets) == 0 {
+		return
+	}
+	if sheets[0] != default_sheet {
+		fXls.SetSheetName(default_sheet, sheets[0])
+	}
+
+	for _, sheet := range sheets {
+		generateSheet(xg, fXls, sheet)
+	}
+}
+
+func generateSheet(xg XlsxGenerator, fXls *excelize.File, sheet string) {
+	fXls.NewSheet(sheet)
+
 	rowsHandled := false
-	rows := xg.GetRows()
+	rows := xg.GetRows(sheet)
 	if rows == nil {
 		return
 	}
+
 	defer func() {
 		if rowsHandled {
 			return
@@ -66,19 +94,7 @@ func GenerateXlsx(xg XlsxGenerator) {
 		for _ = range rows {}
 	}()
 
-	writer := xg.GetWriter()
-	if writer == nil {
-		return
-	}
-
-	titles := xg.GetTitles()
-	if len(titles) == 0 {
-		return
-	}
-
-	fXls := excelize.NewFile()
-	defer fXls.Write(writer)
-	sheet := xg.GetSheet()
+	titles := xg.GetTitles(sheet)
 	rowNo := outputTitleRow(fXls, sheet, titles)
 	rowsHandled = true
 

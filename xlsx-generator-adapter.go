@@ -10,9 +10,9 @@ import (
 type DummyXlsxGeneratorAdapter struct {}
 func (a *DummyXlsxGeneratorAdapter) BeforeOutputXlsx() {}
 func (a *DummyXlsxGeneratorAdapter) GetWriter() io.Writer { return nil; }
-func (a *DummyXlsxGeneratorAdapter) GetSheet() string { return "Sheet1"; }
-func (a *DummyXlsxGeneratorAdapter) GetTitles() []Title { return nil; }
-func (a *DummyXlsxGeneratorAdapter) GetRows() (<-chan map[string]interface{}) { return nil; }
+func (a *DummyXlsxGeneratorAdapter) GetSheets() []string { return []string{default_sheet}; }
+func (a *DummyXlsxGeneratorAdapter) GetTitles(sheet string) []Title { return nil; }
+func (a *DummyXlsxGeneratorAdapter) GetRows(sheet string) (<-chan map[string]interface{}) { return nil; }
 
 // --- XlsxGeneratorAdapter -----
 type XlsxGeneratorAdapter struct {
@@ -23,7 +23,7 @@ func (a *XlsxGeneratorAdapter) GetWriter() io.Writer {
 	return os.Stdout
 }
 
-func (a *XlsxGeneratorAdapter) GetTitles() []Title {
+func (a *XlsxGeneratorAdapter) GetTitles(sheet string) []Title {
 	return []Title{
 		Title{
 			Name: "a",
@@ -37,7 +37,7 @@ func (a *XlsxGeneratorAdapter) GetTitles() []Title {
 	}
 }
 
-func (a *XlsxGeneratorAdapter) GetRows() (<-chan map[string]interface{}) {
+func (a *XlsxGeneratorAdapter) GetRows(sheet string) (<-chan map[string]interface{}) {
 	rows := make(chan map[string]interface{})
 	go func() {
 		for i := 0; i < 10; i++ {

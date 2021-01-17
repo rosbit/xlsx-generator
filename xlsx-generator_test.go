@@ -30,7 +30,11 @@ func (t *xlsxTest) GetWriter() io.Writer {
 	return t.fp
 }
 
-func (a *xlsxTest) GetTitles() []Title {
+func (t *xlsxTest) GetSheets() []string {
+	return []string{"Sheet1", "Sheet2"}
+}
+
+func (a *xlsxTest) GetTitles(sheet string) []Title {
 	return []Title{
 		Title{
 			Name: "a",
@@ -47,7 +51,7 @@ func (a *xlsxTest) GetTitles() []Title {
 	}
 }
 
-func (a *xlsxTest) GetRows() (<-chan map[string]interface{}) {
+func (a *xlsxTest) GetRows(sheet string) (<-chan map[string]interface{}) {
 	rows := make(chan map[string]interface{})
 	go func() {
 		for i := 0; i < 10; i++ {
