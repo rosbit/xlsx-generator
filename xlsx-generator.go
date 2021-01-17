@@ -37,6 +37,19 @@ type XlsxGenerator interface {
 func GenerateXlsx(xg XlsxGenerator) {
 	xg.BeforeOutputXlsx()
 
+	rowsHandled := false
+	rows := xg.GetRows()
+	if rows == nil {
+		return
+	}
+	defer func() {
+		if rowsHandled {
+			return
+		}
+		// rows必须读完，防止channel堵塞
+		for _ = range rows {}
+	}()
+
 	writer := xg.GetWriter()
 	if writer == nil {
 		return
@@ -51,11 +64,7 @@ func GenerateXlsx(xg XlsxGenerator) {
 	defer fXls.Write(writer)
 	sheet := xg.GetSheet()
 	rowNo := outputTitleRow(fXls, sheet, titles)
-
-	rows := xg.GetRows()
-	if rows == nil {
-		return
-	}
+	rowsHandled = true
 
 	for row := range rows {
 		outputRow(xg, fXls, sheet, titles, rowNo, row)
