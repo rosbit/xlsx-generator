@@ -11,6 +11,28 @@ type Title struct {
 	SubTitles []string
 }
 
+func NewTitle(title string) Title {
+	return Title{Name: title}
+}
+
+func NewTitleWithSubTitles(title string, subTitles []string) Title {
+	return Title{
+		Name: title,
+		SubTitles: subTitles,
+	}
+}
+
+func NewTitles(title ...string) []Title {
+	if len(title) == 0 {
+		return nil
+	}
+	titles := make([]Title, len(title))
+	for i, t := range title {
+		titles[i] = Title{Name:t}
+	}
+	return titles
+}
+
 type XlsxGenerator interface {
 	/// 在输出整个xlsx之前调用，在这里可以做一些输出准备工作
 	BeforeOutputXlsx()
@@ -25,13 +47,7 @@ type XlsxGenerator interface {
 	GetTitles() []Title
 
 	// 获取所有的输出行channel
-	GetRows() (<-chan interface{})
-
-	/// 在输出每行之前调用，在这里可以做一些判断条件收集
-	BeforeOutputRow(row interface{})
-
-	/// 获取某一列/子列的值。如果没有子列, subIdx为-1
-	GetColValue(row interface{}, idx, subIdx int, title Title) interface{}
+	GetRows() (<-chan map[string]interface{}) // 如果没有subtitle，key={title}; 其它key为{title}_{subtitle}
 }
 
 func GenerateXlsx(xg XlsxGenerator) {
@@ -67,7 +83,7 @@ func GenerateXlsx(xg XlsxGenerator) {
 	rowsHandled = true
 
 	for row := range rows {
-		outputRow(xg, fXls, sheet, titles, rowNo, row)
+		outputRow(fXls, sheet, titles, rowNo, row)
 		rowNo += 1
 	}
 }
@@ -132,20 +148,25 @@ func outputTitleCellWithSubtitle(g *columnGenerator, fXls *excelize.File, sheet,
 	fXls.MergeCell(sheet, axis1, axis2)
 }
 
-func outputRow(xg XlsxGenerator, fXls *excelize.File, sheet string, titles []Title, rowNo int, row interface{}) {
-	xg.BeforeOutputRow(row)
-
+func outputRow(fXls *excelize.File, sheet string, titles []Title, rowNo int, row map[string]interface{}) {
 	g := NewColumnGenerator()
 	defer g.Stop()
 
-	for i, title := range titles {
+	for _, title := range titles {
 		if len(title.SubTitles) > 0 {
-			for j, _ := range title.SubTitles {
-				val := xg.GetColValue(row, i, j, title)
+			for _, subTitle := range title.SubTitles {
+				key := fmt.Sprintf("%s_%s", title.Name, subTitle)
+				val, ok := row[key]
+				if !ok {
+					val = ""
+				}
 				outputCell(g, rowNo, fXls, sheet, val)
 			}
 		} else {
-			val := xg.GetColValue(row, i, -1, title)
+			val, ok := row[title.Name]
+			if !ok {
+				val = ""
+			}
 			outputCell(g, rowNo, fXls, sheet, val)
 		}
 	}

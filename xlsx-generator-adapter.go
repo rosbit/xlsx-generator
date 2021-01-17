@@ -12,9 +12,7 @@ func (a *DummyXlsxGeneratorAdapter) BeforeOutputXlsx() {}
 func (a *DummyXlsxGeneratorAdapter) GetWriter() io.Writer { return nil; }
 func (a *DummyXlsxGeneratorAdapter) GetSheet() string { return "Sheet1"; }
 func (a *DummyXlsxGeneratorAdapter) GetTitles() []Title { return nil; }
-func (a *DummyXlsxGeneratorAdapter) GetRows() (<-chan interface{}) { return nil; }
-func (a *DummyXlsxGeneratorAdapter) BeforeOutputRow(row interface{}) {}
-func (a *DummyXlsxGeneratorAdapter) GetColValue(row interface{}, idx, subIdx int, title Title) interface{} { return nil; }
+func (a *DummyXlsxGeneratorAdapter) GetRows() (<-chan map[string]interface{}) { return nil; }
 
 // --- XlsxGeneratorAdapter -----
 type XlsxGeneratorAdapter struct {
@@ -39,13 +37,13 @@ func (a *XlsxGeneratorAdapter) GetTitles() []Title {
 	}
 }
 
-func (a *XlsxGeneratorAdapter) GetRows() (<-chan interface{}) {
-	rows := make(chan interface{})
+func (a *XlsxGeneratorAdapter) GetRows() (<-chan map[string]interface{}) {
+	rows := make(chan map[string]interface{})
 	go func() {
 		for i := 0; i < 10; i++ {
-			row := make([]string, 3)
+			row := make(map[string]interface{})
 			for j := 0; j < 3; j++ {
-				row[j] = fmt.Sprintf("%d%d", i+1, j+1)
+				row[fmt.Sprintf("%c", 'a'+j)] = fmt.Sprintf("%d%d", i+1, j+1)
 			}
 			rows <- row
 		}
@@ -54,12 +52,4 @@ func (a *XlsxGeneratorAdapter) GetRows() (<-chan interface{}) {
 	}()
 
 	return rows
-}
-
-func (a *XlsxGeneratorAdapter) GetColValue(row interface{}, idx, subIdx int, title Title) interface{} {
-	realRow, ok := row.([]string)
-	if !ok {
-		return ""
-	}
-	return realRow[idx]
 }

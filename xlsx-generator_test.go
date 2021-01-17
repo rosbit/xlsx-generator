@@ -47,14 +47,18 @@ func (a *xlsxTest) GetTitles() []Title {
 	}
 }
 
-func (a *xlsxTest) GetRows() (<-chan interface{}) {
-	rows := make(chan interface{})
+func (a *xlsxTest) GetRows() (<-chan map[string]interface{}) {
+	rows := make(chan map[string]interface{})
 	go func() {
 		for i := 0; i < 10; i++ {
-			row := make([]string, 5) // a, {b1,b2,b3}, c -> 5
-			for j := 0; j < 5; j++ {
-				row[j] = fmt.Sprintf("%d%d", i+1, j+1)
-			}
+			r := i+1
+			row := make(map[string]interface{}, 5) // a, {b1,b2,b3}, c -> 5
+			row["a"]    = fmt.Sprintf("a%d%d", r, 1)
+			row["b_b1"] = fmt.Sprintf("b%d%d", r, 2)
+			row["b_b2"] = fmt.Sprintf("b%d%d", r, 3)
+			row["b_b3"] = fmt.Sprintf("b%d%d", r, 4)
+			row["c"]    = fmt.Sprintf("c%d%d", r, 5)
+
 			rows <- row
 		}
 
@@ -64,13 +68,3 @@ func (a *xlsxTest) GetRows() (<-chan interface{}) {
 	return rows
 }
 
-func (t *xlsxTest) GetColValue(row interface{}, idx, subIdx int, title Title) interface{} {
-	realRow, ok := row.([]string)
-	if !ok {
-		return ""
-	}
-	if subIdx < 0 {
-		return fmt.Sprintf("%s_%d_%s", title.Name, idx, realRow[idx])
-	}
-	return fmt.Sprintf("%s_%d_%s", title.SubTitles[subIdx], subIdx, realRow[idx+subIdx])
-}
