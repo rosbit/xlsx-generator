@@ -1,3 +1,7 @@
+// excel表cell列编号生成器
+// A, B, C, ..., Z, AA, AB, AC, ..., AZ, BA, BB, BC, ..., BZ, CA, ......, ZA, ZB, ZC, ..., ZZ
+// 最多26*27 = 702列，暂不支持3个字母以上的列编号
+
 package toxlsx
 
 import (
