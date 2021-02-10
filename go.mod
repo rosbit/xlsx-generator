@@ -1,4 +1,4 @@
-module gitlab.foundingaz.cn/tools/xlsx-generator
+module github.com/rosbit/xlsx-generator
 
 go 1.15
 
